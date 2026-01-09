@@ -3,11 +3,10 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { HomeStackParamList } from './types';
+import HomeScreen from '../screens/Home/HomeScreen';
 
 // Import screens
-import HomeScreen from '../screens/Home/HomeScreen';
-import ProductDetailScreen from '../screens/Home/ProductDetail';
-import CartScreen from '../screens/Home/Cart';
+
 
 const Stack = createNativeStackNavigator<HomeStackParamList>();
 
@@ -24,21 +23,12 @@ const HomeStackNavigator = () => {
           fontWeight: 'bold',
         },
       }}>
-      <Stack.Screen 
-        name="HomeScreen" 
+      <Stack.Screen
+        name="HomeScreen"
         component={HomeScreen}
         options={{ title: 'Home' }}
       />
-      <Stack.Screen 
-        name="ProductDetail" 
-        component={ProductDetailScreen}
-        options={{ title: 'Product Details' }}
-      />
-      <Stack.Screen 
-        name="Cart" 
-        component={CartScreen}
-        options={{ title: 'Shopping Cart' }}
-      />
+
     </Stack.Navigator>
   );
 };

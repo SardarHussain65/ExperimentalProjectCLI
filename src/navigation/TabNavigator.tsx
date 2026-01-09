@@ -3,11 +3,11 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { MainTabParamList } from './types';
-import Icon from 'react-native-vector-icons/Ionicons';
 
 // Import navigators and screens
 import HomeStackNavigator from './HomeStackNavigator';
 import ProfileStackNavigator from './ProfileStackNavigator';
+import { Text } from 'react-native';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
@@ -47,7 +47,7 @@ const TabNavigator = () => {
               iconName = 'circle';
           }
 
-          return <Icon name={iconName} size={size} color={color} />;
+          return <Text>{iconName}</Text>;
         },
       })}>
       <Tab.Screen

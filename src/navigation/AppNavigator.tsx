@@ -8,8 +8,7 @@ import { RootStackParamList } from './types';
 import AuthNavigator from './AuthNavigator';
 import TabNavigator from './TabNavigator';
 
-// Import modal screens
-import ModalScreen from '../screens/Modal';
+
 
 // Import your auth hook/context
 import { useAuth } from '../hooks/useAuth';
@@ -37,15 +36,6 @@ const RootNavigator = () => {
         <Stack.Screen name="Main" component={TabNavigator} />
       )}
 
-      {/* Global Modal - accessible from anywhere */}
-      <Stack.Screen
-        name="Modal"
-        component={ModalScreen}
-        options={{
-          presentation: 'modal',
-          headerShown: true,
-        }}
-      />
     </Stack.Navigator>
   );
 };

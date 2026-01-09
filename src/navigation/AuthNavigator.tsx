@@ -6,9 +6,7 @@ import { AuthStackParamList } from './types';
 
 // Import screens
 import LoginScreen from '../screens/Auth/Login';
-import RegisterScreen from '../screens/Auth/Register';
-import ForgotPasswordScreen from '../screens/Auth/ForgotPassword';
-
+import Register from '../screens/Auth/Register';
 const Stack = createNativeStackNavigator<AuthStackParamList>();
 
 const AuthNavigator = () => {
@@ -19,15 +17,7 @@ const AuthNavigator = () => {
         animation: 'slide_from_right',
       }}>
       <Stack.Screen name="Login" component={LoginScreen} />
-      <Stack.Screen name="Register" component={RegisterScreen} />
-      <Stack.Screen 
-        name="ForgotPassword" 
-        component={ForgotPasswordScreen}
-        options={{
-          headerShown: true,
-          title: 'Reset Password',
-        }}
-      />
+      <Stack.Screen name="Register" component={Register} />
     </Stack.Navigator>
   );
 };
