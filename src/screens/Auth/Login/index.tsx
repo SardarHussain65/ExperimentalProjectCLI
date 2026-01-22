@@ -2,11 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { View, Alert, StatusBar, StyleSheet, TouchableOpacity, Image, Text, ActivityIndicator } from 'react-native';
 import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
 import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { supabase } from '../../../utils/supabase';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { RootStackParamList } from '../../../navigation/types';
+
+type LoginNavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 export default function Login() {
-  const navigation = useNavigation();
+  const navigation = useNavigation<LoginNavigationProp>();
   const [loading, setLoading] = useState(true); // Loading state
 
   useEffect(() => {
@@ -24,7 +28,7 @@ export default function Login() {
       const userInfo = await GoogleSignin.signInSilently(); // Auto sign-in if already logged in
       if (userInfo && userInfo?.data?.user) {
         console.log('User already signed in:', userInfo);
-        navigation.replace('Home', { user: userInfo.data.user }); // Fixed: userInfo.user instead of userInfo.data.user
+        (navigation as any).replace('Main'); // Navigate to Main tab navigator after successful login
       } else {
         console.log('No user signed in');
       }
@@ -42,7 +46,7 @@ export default function Login() {
       const userInfo = await GoogleSignin.signIn();
       console.log('Google Sign-In Success:', userInfo);
 
-      if (userInfo.data.idToken) {
+      if (userInfo.data?.idToken) {
         const { data, error } = await supabase.auth.signInWithIdToken({
           provider: 'google',
           token: userInfo.data.idToken,
@@ -54,21 +58,32 @@ export default function Login() {
           Alert.alert('Error', error.message);
         } else {
           console.log("Signed in with Google successfully");
-          navigation.replace('Home', { user: userInfo.data.user });
+          (navigation as any).replace('Main'); // Navigate to Main tab navigator after successful login
         }
       } else {
         throw new Error('No ID token present!');
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Google Sign-In Error:', error);
-      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-        Alert.alert('Sign In Cancelled', 'User cancelled the login flow.');
-      } else if (error.code === statusCodes.IN_PROGRESS) {
-        Alert.alert('Sign In In Progress', 'Sign in is already in progress.');
-      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-        Alert.alert('Play Services Error', 'Google Play services not available or outdated.');
+
+      // Type guard to check if error has the expected properties
+      const isGoogleSignInError = (err: unknown): err is { code: string; message?: string } => {
+        return typeof err === 'object' && err !== null && 'code' in err;
+      };
+
+      if (isGoogleSignInError(error)) {
+        if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+          Alert.alert('Sign In Cancelled', 'User cancelled the login flow.');
+        } else if (error.code === statusCodes.IN_PROGRESS) {
+          Alert.alert('Sign In In Progress', 'Sign in is already in progress.');
+        } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+          Alert.alert('Play Services Error', 'Google Play services not available or outdated.');
+        } else {
+          Alert.alert('Error', error.message || 'An unexpected error occurred.');
+        }
       } else {
-        Alert.alert('Error', error.message);
+        // Handle unexpected error types
+        Alert.alert('Error', 'An unexpected error occurred during sign in.');
       }
     }
   };

@@ -5,6 +5,7 @@ import { StatusBar, useColorScheme } from 'react-native';
 
 import { AuthProvider } from './src/context/AuthContext';
 import RootNavigator from './src/navigation/AppNavigator';
+import { ModalProvider } from './src/context/ModalContext';
 
 const App = () => {
   const colorScheme = useColorScheme();
@@ -12,15 +13,17 @@ const App = () => {
 
   return (
     <SafeAreaProvider>
-      <AuthProvider>
-        <NavigationContainer theme={isDarkMode ? DarkTheme : DefaultTheme}>
-          <StatusBar
-            barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-            backgroundColor={isDarkMode ? '#000000' : '#ffffff'}
-          />
-          <RootNavigator />
-        </NavigationContainer>
-      </AuthProvider>
+      <ModalProvider>
+        <AuthProvider>
+          <NavigationContainer theme={isDarkMode ? DarkTheme : DefaultTheme}>
+            <StatusBar
+              barStyle={isDarkMode ? 'light-content' : 'dark-content'}
+              backgroundColor={isDarkMode ? '#000000' : '#ffffff'}
+            />
+            <RootNavigator />
+          </NavigationContainer>
+        </AuthProvider>
+      </ModalProvider>
     </SafeAreaProvider>
   );
 };

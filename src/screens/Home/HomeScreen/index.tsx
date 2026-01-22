@@ -1,73 +1,92 @@
-import React from 'react';
-import { View, StatusBar, StyleSheet, ImageBackground, Image, Text, TouchableOpacity, Alert } from 'react-native';
-import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import React, { useEffect, useState } from 'react';
+import { View, StatusBar, StyleSheet, ImageBackground, Image, Text, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { supabase } from '../../../utils/supabase';
+import { HomeStackScreenProps, RootStackParamList } from '../../../navigation/types';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import Modal from '../../../components/common/Modal';
+import { useModal } from '../../../hooks/useModal';
 
-export default function HomeScreen({ route }) {
-    const { user } = route.params || {};
-    const navigation = useNavigation();
+type HomeScreenProps = HomeStackScreenProps<'HomeScreen'>;
+type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
-    const handleSignOut = async () => {
-        try {
-            await GoogleSignin.signOut(); // Google Sign-Out
-            await supabase.auth.signOut(); // Supabase Sign-Out
+interface UserData {
+    name?: string;
+    email?: string;
+    id?: string;
+}
 
-            Alert.alert("Signed Out", "You have been signed out successfully.");
-            navigation.replace('Login'); // Navigate back to SignIn screen
-        } catch (error) {
-            console.error("Sign Out Error:", error);
-            Alert.alert("Error", "Failed to sign out. Please try again.");
-        }
-    };
+export default function HomeScreen({ route }: HomeScreenProps) {
+    const [user, setUser] = useState<UserData | null>(null);
+    const [loading, setLoading] = useState(true);
+    const navigation = useNavigation<HomeScreenNavigationProp>();
+
+    useEffect(() => {
+        // Fetch user data from Supabase
+        const fetchUserData = async () => {
+            try {
+                const { data: { user: supabaseUser }, error } = await supabase.auth.getUser();
+
+                if (error) {
+                    console.error('Error fetching user:', error);
+                    Alert.alert('Error', 'Failed to fetch user data');
+                    return;
+                }
+
+                if (supabaseUser) {
+                    setUser({
+                        name: supabaseUser.user_metadata?.full_name || supabaseUser.user_metadata?.name || 'User',
+                        email: supabaseUser.email || 'No email',
+                        id: supabaseUser.id,
+                    });
+                }
+            } catch (error) {
+                console.error('Error in fetchUserData:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchUserData();
+    }, []);
+
+    const { visible, title, description, closeModal, openModal } = useModal();
+
 
     return (
-        <View>
-            <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
-            <View style={styles.container}>
-                <View style={styles.profileCard}>
-                    <Text style={styles.name}>{user?.name}</Text>
-                    <Text style={styles.email}>{user?.email}</Text>
-                    <Text style={styles.userId}>User ID: {user?.id}</Text>
+        <SafeAreaView style={styles.container}>
+            <StatusBar barStyle="light-content" />
 
-                    {/* Sign Out Button */}
-                    <TouchableOpacity style={styles.signOutButton} onPress={handleSignOut}>
-                        <Text style={styles.signOutText}>Sign Out</Text>
-                    </TouchableOpacity>
-                </View>
+
+            <View style={styles.profileCard}>
+                <Text style={styles.name}>User Information</Text>
+                <Text style={styles.name}>Name: {user?.name}</Text>
+                <Text style={styles.email}>Email: {user?.email}</Text>
             </View>
-        </View>
+            <TouchableOpacity style={styles.signOutButton} onPress={() => openModal("Modal Title", "Modal Description")}>
+                <Text style={styles.signOutText}>Open Modal</Text>
+            </TouchableOpacity>
+
+            <Modal visible={visible} closeModal={closeModal} title={title} description={description} />
+
+        </SafeAreaView >
     );
 }
 
 const styles = StyleSheet.create({
-    background: {
-        flex: 1,
-        resizeMode: 'cover',
-        justifyContent: 'center',
-    },
+
     container: {
         flex: 1,
         justifyContent: 'center',
-        alignItems: 'center',
+        alignItems: 'center', gap: 20
     },
     profileCard: {
-        backgroundColor: 'rgba(255, 255, 255, 0.9)',
-        padding: 20,
         borderRadius: 10,
         alignItems: 'center',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.2,
-        shadowRadius: 4,
-        elevation: 5,
+
     },
-    profileImage: {
-        width: 80,
-        height: 80,
-        borderRadius: 40,
-        marginBottom: 10,
-    },
+
     name: {
         fontSize: 18,
         fontWeight: 'bold',
@@ -83,16 +102,10 @@ const styles = StyleSheet.create({
         marginTop: 5,
     },
     signOutButton: {
-        marginTop: 20,
-        backgroundColor: '#ff3b30', // Red color for sign out
-        paddingVertical: 10,
-        paddingHorizontal: 20,
         borderRadius: 8,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.2,
-        shadowRadius: 2,
-        elevation: 3,
+        backgroundColor: '#FF0000',
+        padding: 10,
+        alignItems: 'center',
     },
     signOutText: {
         fontSize: 16,

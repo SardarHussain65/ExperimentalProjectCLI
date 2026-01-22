@@ -21,7 +21,7 @@ export type MainTabParamList = {
 
 // Home Stack (nested in Home Tab)
 export type HomeStackParamList = {
-  HomeScreen: undefined;
+  HomeScreen: { user?: { name?: string; email?: string; id?: string } };
   ProductDetail: { productId: string };
   Cart: undefined;
 };
@@ -60,6 +60,6 @@ export type MainTabScreenProps<T extends keyof MainTabParamList> =
 // Declare global navigation types
 declare global {
   namespace ReactNavigation {
-    interface RootParamList extends RootStackParamList {}
+    interface RootParamList extends RootStackParamList { }
   }
 }
