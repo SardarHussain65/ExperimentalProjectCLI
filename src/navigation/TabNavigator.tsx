@@ -1,13 +1,10 @@
-// src/navigation/TabNavigator.tsx
-
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { MainTabParamList } from './types';
-
-// Import navigators and screens
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import HomeStackNavigator from './HomeStackNavigator';
 import ProfileStackNavigator from './ProfileStackNavigator';
-import { Text } from 'react-native';
+import SettingsStackNavigator from './SettingStackNavigator';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
@@ -19,9 +16,7 @@ const TabNavigator = () => {
         tabBarActiveTintColor: '#6200ee',
         tabBarInactiveTintColor: 'gray',
         tabBarStyle: {
-          paddingBottom: 5,
-          paddingTop: 5,
-          height: 60,
+          height: 80,
         },
         tabBarLabelStyle: {
           fontSize: 12,
@@ -47,7 +42,7 @@ const TabNavigator = () => {
               iconName = 'circle';
           }
 
-          return <Text>{iconName}</Text>;
+          return <Ionicons name={iconName} size={size} color={color} />;
         },
       })}>
       <Tab.Screen
@@ -60,6 +55,11 @@ const TabNavigator = () => {
         name="ProfileTab"
         component={ProfileStackNavigator}
         options={{ tabBarLabel: 'Profile' }}
+      />
+      <Tab.Screen
+        name="SettingsTab"
+        component={SettingsStackNavigator}
+        options={{ tabBarLabel: 'Settings' }}
       />
 
     </Tab.Navigator>
